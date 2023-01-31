@@ -1,6 +1,6 @@
+use gdsc_rust_study::{configuration::get_configuration, startup::run};
+use sqlx::{Connection, PgConnection, PgPool};
 use std::net::TcpListener;
-use gdsc_rust_study::{startup::run, configuration::get_configuration};
-use sqlx::{PgConnection, Connection, PgPool};
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
