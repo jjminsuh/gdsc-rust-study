@@ -1,5 +1,6 @@
 use gdsc_rust_study::telemetry::{get_subscriber, init_subscriber};
 use gdsc_rust_study::{configuration::get_configuration, startup::run};
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
 use std::net::TcpListener;
 
@@ -9,7 +10,7 @@ async fn main() -> std::io::Result<()> {
     init_subscriber(subscriber);
 
     let configuration = get_configuration().expect("Failed to read configuration.");
-    let connection_pool = PgPool::connect(&configuration.database.connection_string())
+    let connection_pool = PgPool::connect(&configuration.database.connection_string().expose_secret())
         .await
         .expect("Failed do connect to Postgres");
     let address = format!("127.0.0.1:{}", configuration.application_port);
