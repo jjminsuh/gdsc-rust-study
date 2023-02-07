@@ -2,9 +2,11 @@ use gdsc_rust_study::configuration::{get_configuration, DatabaseSettings};
 use gdsc_rust_study::startup::run;
 use gdsc_rust_study::telemetry::{get_subscriber, init_subscriber};
 use once_cell::sync::Lazy;
+use reqwest::Client;
 use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::net::TcpListener;
+use std::vec;
 use uuid::Uuid;
 
 static TRACING: Lazy<()> = Lazy::new(|| {
@@ -47,9 +49,10 @@ async fn spawn_app() -> TestApp {
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
-    let mut connection = PgConnection::connect(&config.connection_string_without_db().expose_secret())
-        .await
-        .expect("Failed to connect to Postgres.");
+    let mut connection =
+        PgConnection::connect(&config.connection_string_without_db().expose_secret())
+            .await
+            .expect("Failed to connect to Postgres.");
     connection
         .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
         .await
@@ -132,5 +135,32 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
             "The API did not fail with 400 Bad Request when the payload was {}.",
             error_message
         );
+    }
+}
+
+#[tokio::test]
+async fn subscribe_returns_a_400_when_fields_are_present_but_invalid() {
+    let app = spawn_app().await;
+    let client = reqwest::Client::new();
+    let test_cases = vec![
+        ("name=&email=ursula_le_guin%40gmail.com", "empty name"),
+        ("name=Ursula&email=", "empty email"),
+        ("name=Ursula&email=definitely-not-an-email", "invalid email"),
+    ];
+
+    for(body, description) in test_cases {
+        let response = client
+            .post(&format!("{}/subscriptions, &app.address"))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()
+            .await
+            .expect("Failed to execute request.");
+        
+            assert_eq!(
+                400,
+                response.status().as_u16(),
+                "The API did not return a 400 Bad Request when the payload was {description}."
+            );
     }
 }
