@@ -3,6 +3,7 @@ use std::net::TcpListener;
 use uuid::Uuid;
 use gdsc_rust_study::configuration::{get_configuration, DatabaseSettings};
 use gdsc_rust_study::startup::run;
+use gdsc_rust_study::telemetry::{get_subscriber, init_subscriber};
 
 pub struct TestApp {
     pub address: String,
