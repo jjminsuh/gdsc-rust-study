@@ -1,8 +1,8 @@
-use gdsc_rust_study::configuration::{get_configuration, DatabaseSettings};
-use gdsc_rust_study::startup::run;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::net::TcpListener;
 use uuid::Uuid;
+use gdsc_rust_study::configuration::{get_configuration, DatabaseSettings};
+use gdsc_rust_study::startup::run;
 
 pub struct TestApp {
     pub address: String,

@@ -23,11 +23,11 @@ then
     postgres -N 1000
 fi
 
-export PGPASSWORD=${DB_PASSWORD}
-#until psql -h "localhost" -U "${DB_USER}" -p "${DB_PORT}" -d "postgres" -c '\q'; do
+# export PGPASSWORD=${DB_PASSWORD}
+# until psql -h "localhost" -U "${DB_USER}" -p "${DB_PORT}" -d "postgres" -c '\q'; do
 #  >&2 echo "Postgres is still unavailable - sleeping"
 #  sleep 1
-#done
+# done
 
 DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
 export DATABASE_URL
